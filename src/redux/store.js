@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import contactsReducer from './contactsSlice';
+import { contactsReducer } from '../redux/contactsSlice';
 
 const store = configureStore({
-  reducer: contactsReducer,
+  reducer: {
+    contacts: contactsReducer,
+  },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
@@ -10,3 +12,4 @@ const store = configureStore({
 });
 
 export default store;
+

@@ -1,29 +1,20 @@
-import { useEffect, useState, useRef  } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { addContact, deleteContact, updateFilter, fetchContacts } from '../redux/contactsSlice';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
-import { addContact, deleteContact, updateFilter } from '../redux/contactsSlice';
-
 
 const App = () => {
   const [isContactsLoaded, setIsContactsLoaded] = useState(false);
-  const contacts = useSelector((state) => state.contacts);
-  const filter = useSelector((state) => state.filter);
+  const contacts = useSelector((state) => state.contacts.contacts);
+  const filter = useSelector((state) => state.contacts.filter);
   const dispatch = useDispatch();
-  const loadedContactIds = useRef([]); 
 
   useEffect(() => {
     if (!isContactsLoaded) {
-      fetch('https://64bb9b397b33a35a444682bc.mockapi.io/contacts/contacts')
-        .then((response) => response.json())
-        .then((data) => {
-          data.forEach((contact) => {
-            if (!loadedContactIds.current.includes(contact.id)) {
-              dispatch(addContact(contact));
-              loadedContactIds.current.push(contact.id); 
-            }
-          });
+      dispatch(fetchContacts())
+        .then(() => {
           setIsContactsLoaded(true);
         })
         .catch((error) => {
@@ -74,24 +65,24 @@ const handleDeleteContact = (id) => {
 };
 
 
-  const handleFilterChange = (event) => {
-    dispatch(updateFilter(event.target.value));
-  };
+const handleFilterChange = (event) => {
+  dispatch(updateFilter(event.target.value));
+};
 
-  const filteredContacts = filter
-    ? contacts.filter((contact) => contact.name.toLowerCase().includes(filter.toLowerCase()))
-    : contacts;
+const filteredContacts = filter
+  ? contacts.filter((contact) => contact.name.toLowerCase().includes(filter.toLowerCase()))
+  : contacts;
 
-  return (
-    <div style={{ maxWidth: '250px', padding: '20px' }}>
-      <h1 style={{ marginBottom: '20px' }}>Phonebook</h1>
-      <ContactForm contacts={contacts} onAddContact={handleAddContact} />
+return (
+  <div style={{ maxWidth: '250px', padding: '20px' }}>
+    <h1 style={{ marginBottom: '20px' }}>Phonebook</h1>
+    <ContactForm contacts={contacts} onAddContact={handleAddContact} />
 
-      <h2 style={{ marginTop: '40px' }}>Contacts</h2>
-      <Filter value={filter} onChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} onDeleteContact={handleDeleteContact} />
-    </div>
-  );
+    <h2 style={{ marginTop: '40px' }}>Contacts</h2>
+    <Filter value={filter} onChange={handleFilterChange} />
+    <ContactList contacts={filteredContacts} onDeleteContact={handleDeleteContact} />
+  </div>
+);
 };
 
 export default App;
